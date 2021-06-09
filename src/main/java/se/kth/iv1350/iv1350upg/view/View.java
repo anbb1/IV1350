@@ -5,6 +5,7 @@ import se.kth.iv1350.iv1350upg.controller.Controller;
 import se.kth.iv1350.iv1350upg.integration.Amount;
 import se.kth.iv1350.iv1350upg.integration.ItemDTO;
 import se.kth.iv1350.iv1350upg.integration.ItemID;
+import se.kth.iv1350.iv1350upg.integration.NoItemFoundException;
 
 /**
  * This is a placeholder view that contains a hardcoded sale scenario.
@@ -17,17 +18,19 @@ public class View
     public View(Controller controller)
     {
         this.controller=controller;
+        controller.addPaymentObserver(new TotalRevenueView());
     }
     
     public void runStandardSale()
     {
-        controller.startNewSale();
-        addItemsToSale();
-        Amount toPay = endSale();
-        Amount paid = new Amount(toPay.getAmount()+50); 
-        
-        
-        controller.Payment(paid);
+        for(int i = 0 ; i < 2 ; i++)
+        {
+            controller.startNewSale();
+            addItemsToSale();
+            Amount toPay = endSale();
+            Amount paid = new Amount(toPay.getAmount()+50);
+            controller.Payment(paid);
+        }
     }
     
     
@@ -42,12 +45,16 @@ public class View
             IDList[i]= new ItemID(i+1);
         }
         
+        
+        
         addItem(IDList[2],1);
         addItem(IDList[3],1);
+        addItem(new ItemID(77),1);
         addItem(IDList[2],1);
         addItem(IDList[3],1);
         addItem(IDList[1],1);
         addItem(IDList[6],2);
+        addItem(new ItemID(100),1);
         
         
     }
@@ -55,15 +62,23 @@ public class View
     private void addItem(ItemID itemID,int quantity)
     {
         ItemDTO foundItem= null;
-        foundItem = controller.addItem(itemID,quantity);
+        try {
+            foundItem = controller.addItem(itemID,quantity);
+        } catch (NoItemFoundException ex) {
+            System.out.println("-----------"
+                            +"\n!!!" + ex.getMessage() + "!!!"
+                            +"\n-----------");
+        }
         if(foundItem!=null)
         {
             System.out.println(itemDTOString(foundItem));
         }
+        /*
         else
         {
             System.out.println("***ItemID is invalid***");
         }
+        */
         System.out.println("Running total:" + String.format("%.2f",controller.updateRunningTotal().getAmount()) + " Sek");
     }
     

@@ -26,15 +26,25 @@ public class InventorySystem
      * Sends information that external systems use to identify an item.
      * @param itemToFetch is the information sent do external systems 
      * @return information about an identified item.
+     * @throws se.kth.iv1350.iv1350upg.integration.NoItemFoundException when no matching itemID is found
+     * @throws se.kth.iv1350.iv1350upg.integration.InventorySystemContactFailureException when the db did not respond
      */
-    public ItemDTO fetchInventoryInfo(ItemID itemToFetch)
+    public ItemDTO fetchInventoryInfo(ItemID itemToFetch) throws NoItemFoundException, InventorySystemContactFailureException
     {
-        ItemDTO foundItem = fakeDBSearch(itemToFetch);
+        if(itemToFetch.getID()==100)
+        {
+            throw new InventorySystemContactFailureException();
+        }
+        ItemDTO foundItem = fakeDBSearch(itemToFetch);   
         ItemDTO newItem=null;
         if(foundItem!=null)
         {
             ItemID newItemID= new ItemID(foundItem.getItemID().getID());
             newItem = new ItemDTO(newItemID, foundItem.getName(), foundItem.getPrice(), foundItem.getVATax(), foundItem.getItemDescription());
+        }
+        else
+        {
+            throw new NoItemFoundException(itemToFetch);
         }
         return newItem;
     }

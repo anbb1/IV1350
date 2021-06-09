@@ -25,8 +25,13 @@ public class InventorySystemTest {
     @Test
     public void testFetchInventoryInfoApple() {
         int IDToFetch=1;
+        ItemDTO testDTO=null;
         ItemID testID= new ItemID(IDToFetch);
-        ItemDTO testDTO=testInv.fetchInventoryInfo(testID);
+        try {
+            testDTO=testInv.fetchInventoryInfo(testID);
+        } catch (NoItemFoundException | InventorySystemContactFailureException ex) {
+            
+        }
         
         int expIDResult=IDToFetch;
         int IDresult= testDTO.getItemID().getID();
@@ -49,7 +54,12 @@ public class InventorySystemTest {
     public void testFetchInventoryInfoCarrot() {
         int IDToFetch=3;
         ItemID testID= new ItemID(IDToFetch);
-        ItemDTO testDTO=testInv.fetchInventoryInfo(testID);
+        ItemDTO testDTO= null;
+        try {
+            testDTO = testInv.fetchInventoryInfo(testID);
+        } catch (NoItemFoundException | InventorySystemContactFailureException ex) {
+            
+        }
         
         int expIDResult=IDToFetch;
         int IDresult= testDTO.getItemID().getID();
@@ -74,12 +84,40 @@ public class InventorySystemTest {
     {
         int IDToFetch=100;
         ItemID testID= new ItemID(IDToFetch);
-        ItemDTO testDTO=testInv.fetchInventoryInfo(testID);
+        ItemDTO testDTO= null; try {
+            testDTO=testInv.fetchInventoryInfo(testID);
+        } catch (NoItemFoundException | InventorySystemContactFailureException ex) {
+        }
         
         ItemDTO expResult=null;
         ItemDTO result=testDTO;
         assertEquals(expResult,result,"result is not null");
     }
     
+    @Test
+    public void testNoItemFoundException()
+    {
+        ItemDTO item=null;
+        ItemID testID=new ItemID(200);
+        try {
+            item = testInv.fetchInventoryInfo(testID);
+        } catch (NoItemFoundException ex) {
+            assertEquals(null,item,"found item with invalid id");
+        } catch (InventorySystemContactFailureException ex) {
+        }
+    }
     
+    @Test
+    public void testInvSysConException()
+    {
+        ItemDTO item=null;
+        try {
+            ItemID testID=new ItemID(100);
+            item = testInv.fetchInventoryInfo(testID);
+        } catch (NoItemFoundException ex) {
+            
+        } catch (InventorySystemContactFailureException ex) {
+            assertEquals(null,item,"found an item even without conection");
+        }
+    }
 }

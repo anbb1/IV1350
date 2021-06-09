@@ -2,8 +2,11 @@
 package se.kth.iv1350.iv1350upg.controller;
 
 import se.kth.iv1350.iv1350upg.integration.Amount;
+import se.kth.iv1350.iv1350upg.integration.InventorySystemContactFailureException;
 import se.kth.iv1350.iv1350upg.integration.ItemDTO;
 import se.kth.iv1350.iv1350upg.integration.ItemID;
+import se.kth.iv1350.iv1350upg.integration.NoItemFoundException;
+import se.kth.iv1350.iv1350upg.model.PaymentObserver;
 import se.kth.iv1350.iv1350upg.model.PointOfSale;
 import se.kth.iv1350.iv1350upg.model.SaleFinalizationStep;
 import se.kth.iv1350.iv1350upg.model.SaleInfo;
@@ -36,20 +39,28 @@ public class Controller
      * @param itemID Used to identify the item
      * @param quantity Specifies how many of the item to add   
      * @return The identified item
+     * @throws se.kth.iv1350.iv1350upg.integration.NoItemFoundException when no matching itemID is found
      */
-    public ItemDTO addItem(ItemID itemID,int quantity)
+    public ItemDTO addItem(ItemID itemID,int quantity) throws NoItemFoundException
     {
-        ItemDTO foundItem = currentSale.addItem(itemID, quantity);
-        
-        return foundItem;
+        try {
+            ItemDTO foundItem = currentSale.addItem(itemID, quantity);
+            
+            return foundItem;
+        } catch (InventorySystemContactFailureException ex) {
+            //Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("                !intended for log! "+ex.getMessage()+" !intended for log!");
+            return null;
+        }
     }
     
     /**
      * adds an item to the sale object
      * @param itemID Used to identify the item
      * @return The identified item
+     * @throws se.kth.iv1350.iv1350upg.integration.NoItemFoundException when no matching itemID is found
      */
-    public ItemDTO addItemSingle(ItemID itemID)
+    public ItemDTO addItemSingle(ItemID itemID) throws NoItemFoundException
     {
         return addItem(itemID,1);
     }
@@ -83,5 +94,12 @@ public class Controller
 
         return change;
     }
-    
+    /**
+     * adds a new observer
+     * @param newPaymentObserver observer to be added
+     */
+    public void addPaymentObserver(PaymentObserver newPaymentObserver)
+    {
+      pointOfSale.getCashRegister().addPaymentObserver(newPaymentObserver);
+    }
 }

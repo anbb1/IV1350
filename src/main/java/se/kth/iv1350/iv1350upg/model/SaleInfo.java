@@ -8,8 +8,10 @@ package se.kth.iv1350.iv1350upg.model;
 import java.util.ArrayList;
 import se.kth.iv1350.iv1350upg.integration.Amount;
 import se.kth.iv1350.iv1350upg.integration.InventorySystem;
+import se.kth.iv1350.iv1350upg.integration.InventorySystemContactFailureException;
 import se.kth.iv1350.iv1350upg.integration.ItemDTO;
 import se.kth.iv1350.iv1350upg.integration.ItemID;
+import se.kth.iv1350.iv1350upg.integration.NoItemFoundException;
 
 /**
  * This class contains information about a current sale.
@@ -38,8 +40,10 @@ public class SaleInfo
      * @param itemID used to identify the item.
      * @param quantity of the identifed item that should be added to the list.
      * @return item with matching itemID.
+     * @throws se.kth.iv1350.iv1350upg.integration.NoItemFoundException when no matching itemID is found
+     * @throws se.kth.iv1350.iv1350upg.integration.InventorySystemContactFailureException when the db did not respond
      */
-    public ItemDTO addItem(ItemID itemID,int quantity)
+    public ItemDTO addItem(ItemID itemID,int quantity) throws NoItemFoundException, InventorySystemContactFailureException
     {
         ItemDTO addedItem=null;
         if(quantity>0&&itemID!=null)
